@@ -1,19 +1,24 @@
-OpenLDAP binding in GO Language.
+OpenLDAP
 ====
 
+this is Openldap binding in GO language.
+
+
 INSTALL:
-----
+-----
 
 	# install openldap library and devel packages
-	sudo apt-get install  libldap libldap2-dev  # debian/ubuntu.
+	sudo apt-get install libldap libldap2-dev  # debian/ubuntu.
+	sudo urpmi openldap-devel # fedora, RH, ...
 
 	# install go
 	go get github.com/mqu/openldap
 
-	# verify you've gote it :
+	# verify you've got it :
 	go list | grep openldap
 
-DONE : 
+API:
+----
 
 what is done. (Will be thraw in Wiki/API).
 
@@ -76,7 +81,7 @@ what is done. (Will be thraw in Wiki/API).
 		- to update this list : grep "^func" *.go | sed -e "s#^.*:##"  | sort
 
 Defined types :
----
+----
 
  - Ldap : handles LDAP connexion : Initialize, Bind, Close, Search, SearchAll
  - LdapMessage : handles LDAP response  from queries : Result, Search,
@@ -85,8 +90,8 @@ Defined types :
  - LdapResult : handle results and operations ()
  
 
-TODO :
----
+Todo :
+----
  - support binary values ! Search() for "all attributes" will segfault (panic: runtime error: invalid memory address)
    on binary attributes.
  - thread-safe test
@@ -97,8 +102,8 @@ TODO :
 Doc:
 ---
 
-- look at _examples/test-openldap.go to see how to use this library.
-- Wiki.
+- look at _examples/*.go to see how to use this library.
+- will come soon, complete documentation in Wiki.
 
 
 Link :
