@@ -70,6 +70,7 @@ func (self *Ldap) Bind(who, cred string) error {
 
 	authmethod := C.int(LDAP_AUTH_SIMPLE)
 
+	// DEPRECATED
 	// API: int ldap_bind_s (LDAP *ld,	LDAP_CONST char *who, LDAP_CONST char *cred, int authmethod );
 	if who == "" {
 		_who := C.to_charptr(unsafe.Pointer(nil))
@@ -101,6 +102,7 @@ func (self *Ldap) Bind(who, cred string) error {
  */
 func (self *Ldap) Close() error {
 
+	// DEPRECATED
 	// API: int ldap_unbind(LDAP *ld)
 	rv := C.ldap_unbind(self.conn)
 
@@ -142,6 +144,7 @@ func (self *Ldap) Search(base string, scope int, filter string, attributes []str
 
 	var msg *C.LDAPMessage
 
+	// DEPRECATED
 	// API: int ldap_search_s (LDAP *ld, char *base, int scope, char *filter, char **attrs, int attrsonly, LdapMessage * ldap_res)
 	rv := int(C.ldap_search_s(self.conn, _base, C.int(scope), _filter, &_attributes[0], C.int(attrsonly), &msg))
 

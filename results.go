@@ -178,16 +178,12 @@ func (self *LdapEntry) GetValues(attr string) []string {
 	_attr := C.CString(attr)
 	defer C.free(unsafe.Pointer(_attr))
 
+	// DEPRECATED
 	// API: char **ldap_get_values(LDAP *ld, LdapMessage *entry, char *attr)
 	values := cstrings_array(C.ldap_get_values(self.ldap.conn, self.entry, _attr))
 	// count := C.ldap_count_values(values)
 
 	return values
-}
-
-func (self *LdapMessage) GetAll() error {
-	// to be done
-	return nil
 }
 
 // ------------------------------------------------ RESULTS -----------------------------------------------
@@ -199,6 +195,9 @@ func (self *LdapMessage) GetAll() error {
 
 */
 
+// Result()
+// take care to free LdapMessage result with MsgFree()
+//
 func (self *Ldap) Result() (*LdapMessage, error) {
 
 	var msgid int = 1
@@ -211,7 +210,6 @@ func (self *Ldap) Result() (*LdapMessage, error) {
 	result := C.to_ldap_mesg(unsafe.Pointer(_result))
 
 	// API: int ldap_result( LDAP *ld, int msgid, int all, struct timeval *timeout, LdapMessage **result );
-	// FIXME: need to free return value 'result) with ldap_msgfree
 	rv := C.ldap_result(self.conn, C.int(msgid), C.int(all), tv, result)
 
 	if rv != LDAP_OPT_SUCCESS {
