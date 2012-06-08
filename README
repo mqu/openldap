@@ -1,0 +1,84 @@
+OpenLDAP binding in GO Language.
+
+DONE : 
+
+	func Initialize(url string) (*Ldap, error) 
+
+	func (self *Ldap) Add(dn string, attrs map[string][]string) (error)
+	func (self *Ldap) Bind(who, cred string) error 
+	func (self *Ldap) Close() error 
+	func (self *Ldap) Unbind() error 
+
+	func (self *Ldap) Result() (*LdapMessage, error) 
+	func (self *Ldap) Search(base string, scope int, filter string, attributes []string) (*LdapMessage, error) 
+	func (self *Ldap) SearchAll(base string, scope int, filter string, attributes []string) (*LdapSearchResult, error) 
+
+	func (self *Ldap) Errno() int 
+	func (self *Ldap) SetOption(opt int, val int) error 
+	func (self *Ldap) GetOption(opt int) (val int, err error) 
+	func (self *Ldap) IsThreadSafe() bool 
+
+	func (self *Ldap) Delete(dn string) (error)
+	func (self *Ldap) ModifyAdd(dn string, attrs map[string][]string) (error)
+	func (self *Ldap) ModifyDel(dn string, attrs map[string][]string) (error)
+	func (self *Ldap) Modify(dn string, attrs map[string][]string) (error)
+	func (self *Ldap) Rename(dn string, newrdn string, newSuperior string, deleteOld bool) (error)
+
+	func (self *LdapMessage) Count() int 
+	func (self *LdapMessage) FirstEntry() *LdapEntry 
+	func (self *LdapMessage) FirstMessage() *LdapMessage 
+	func (self *LdapMessage) GetAll() error 
+	func (self *LdapMessage) MsgFree() int
+	func (self *LdapMessage) NextMessage() *LdapMessage 
+
+	func (self *LdapSearchResult) Append(e LdapEntry)
+	func (self *LdapSearchResult) Attributes() []string
+	func (self *LdapSearchResult) Base() string
+	func (self *LdapSearchResult) Count() int
+	func (self *LdapSearchResult) Entries() []LdapEntry
+	func (self *LdapSearchResult) Filter() string
+	func (self *LdapSearchResult) Scope() int
+	func (self *LdapSearchResult) String() string
+	func (self *LdapSearchResult) ToText() string
+
+	func (self *LdapEntry) Append(a LdapAttribute)
+	func (self *LdapEntry) Attributes() []LdapAttribute
+	func (self *LdapEntry) CountEntries() int 
+	func (self *LdapEntry) Dn() string
+	func (self *LdapEntry) FirstAttribute() (string, error) 
+	func (self *LdapEntry) GetDn() string 
+	func (self *LdapEntry) GetValues(attr string) []string 
+	func (self *LdapEntry) NextAttribute() (string, error) 
+	func (self *LdapEntry) NextEntry() *LdapEntry 
+	func (self *LdapEntry) String() string
+	func (self *LdapEntry) ToText() string
+
+	func (self *LdapAttribute) Name() string
+	func (self *LdapAttribute) Values() []string
+	func (self *LdapAttribute) String() string
+	func (self *LdapAttribute) ToText() string
+
+		- to update this list : grep "^func" *.go | sed -e "s#^.*:##"  | sort
+
+Defined types :
+ 
+ - Ldap : handles LDAP connexion : Initialize, Bind, Close, Search, SearchAll
+ - LdapMessage : handles LDAP response  from queries : Result, Search,
+ - LdapEntry : handles LDAP entry responses. 
+ - LdapAttribute : handles LDAP entry responses. 
+ - LdapResult : handle results and operations ()
+ 
+
+TODO :
+
+ - thread-safe test
+ - complete LDAP:GetOption and LDAP:SetOption method : now, they work only for integer values.
+ - avoid using deprecated function (see LDAP_DEPRECATED flag)
+ - ...
+ 
+look at _examples/test-openldap.go to see how to use this library.
+
+
+LINKS :
+ - goc : http://code.google.com/p/go-wiki/wiki/cgo (how to bind native libraries to GO)
+ 
