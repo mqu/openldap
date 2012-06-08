@@ -74,7 +74,8 @@ Defined types :
  
 
 TODO :
-
+ - support binary values ! Search() for "all attributes" will segfault (panic: runtime error: invalid memory address)
+   on binary attributes.
  - thread-safe test
  - complete LDAP:GetOption and LDAP:SetOption method : now, they work only for integer values.
  - avoid using deprecated function (see LDAP_DEPRECATED flag)
@@ -85,4 +86,4 @@ look at _examples/test-openldap.go to see how to use this library.
 
 LINKS :
  - goc : http://code.google.com/p/go-wiki/wiki/cgo (how to bind native libraries to GO)
- 
+ - Openldap library (and server) : http://www.openldap.org/
