@@ -1,5 +1,9 @@
 OpenLDAP binding in GO Language.
 
+INSTALL:
+
+  go get github.com/mqu/openldap
+
 DONE : 
 
 	func Initialize(url string) (*Ldap, error) 
