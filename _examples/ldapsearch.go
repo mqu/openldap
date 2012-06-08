@@ -1,5 +1,19 @@
 package main
-
+/*
+ * Author : Marc Quinton / 2012.
+ * 
+ * ldapsearch command mimics openldap/seach command. Supported options :
+ *  - host : ldap[s]://hostname:port/ format,
+ *  - user,
+ *  - password,
+ *  - base
+ * 
+ *  arguments : filter [attributes]
+ *  - filter is an LDAP filter (ex: objectClass=*, cn=*admin*", ...
+ *  - attributes is an LDAP attribute list ; can be empty. ex: cn, sn, givenName, mail, ...
+ * 
+ */  
+ 
 import (
 	"fmt"
 	"os"
@@ -65,7 +79,6 @@ func (self *LdapSearchApp) ParseOpts() (*LdapSearchOptions, error){
 
 // Connect and Bind to LDAP server using self.opts
 func (self *LdapSearchApp) Connect() (error){
-	fmt.Println("# Connect()")
 
 	var err error
 	self.ldap, err = openldap.Initialize(self.opts.host)
@@ -74,6 +87,7 @@ func (self *LdapSearchApp) Connect() (error){
 		return err
 	}
 	
+	//FIXME: should be an external option
 	self.ldap.SetOption(openldap.LDAP_OPT_PROTOCOL_VERSION, openldap.LDAP_VERSION3)
 
 	err = self.ldap.Bind(self.opts.user, self.opts.passwd)
@@ -81,21 +95,20 @@ func (self *LdapSearchApp) Connect() (error){
 		return err
 	}
 	
-	fmt.Println("# Connect()", self)
 	return nil
 }
 
 // Close() disconnect application from Ldap server
 func (self *LdapSearchApp) Close() (error){
-	fmt.Println("# Close()")
-	return nil
+	return self.ldap.Close()
 }
 
 // Search using filter and returning attributes list
 func (self *LdapSearchApp) Search() (*openldap.LdapSearchResult, error){
-	fmt.Println("# Search()", self)
 
+	//FIXME: should be an external option
 	scope := openldap.LDAP_SCOPE_SUBTREE
+
 	return self.ldap.SearchAll(
 		self.opts.base, 
 		scope, 
@@ -105,7 +118,6 @@ func (self *LdapSearchApp) Search() (*openldap.LdapSearchResult, error){
 
 // Print search result
 func (self *LdapSearchApp) Print(res *openldap.LdapSearchResult) (error){
-	fmt.Println("# Print()")
 	fmt.Println(res)
 	return nil
 }
