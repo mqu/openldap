@@ -95,8 +95,8 @@ Todo :
  - support binary values ! Search() for "all attributes" will segfault (panic: runtime error: invalid memory address)
    on binary attributes.
  - thread-safe test
- - complete LDAP:GetOption and LDAP:SetOption method : now, they work only for integer values.
- - avoid using deprecated function (see LDAP_DEPRECATED flag)
+ - complete LDAP:GetOption() and LDAP:SetOption() method : now, they work only for integer values.
+ - avoid using deprecated function (see LDAP_DEPRECATED flag and "// DEPRECATED" comments in *.go sources)
  - ...
 
 Doc:
