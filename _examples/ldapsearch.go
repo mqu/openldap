@@ -7,9 +7,6 @@ import (
 	"flag"
 	"github.com/mqu/openldap"
 )
-type LdapSearchResult struct {
-	res *openldap.LdapSearchResult
-}
 
 type LdapSearchOptions struct {
 	host string
