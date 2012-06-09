@@ -35,9 +35,9 @@ Todo :
 
 Doc:
 ---
-- go doc openldap,
+- run _go doc openldap_,
 - will come soon, complete documentation in this [Wiki](wiki).
-- look at ([_examples/](https://github.com/mqu/openldap/blob/master/_examples/)*.go to see how to use this library.
+- look at [_examples/](https://github.com/mqu/openldap/blob/master/_examples/)*.go to see how to use this library.
 
 
 Link :
