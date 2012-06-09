@@ -20,8 +20,8 @@ INSTALL:
 Usage
 ----
 
-- Look a this [exemple}(https://github.com/mqu/openldap/blob/master/_examples/test-openldap.go).
-- a more complexe example making  [LDAP search]-https://github.com/mqu/openldap/blob/master/_examples/ldapsearch.go) that mimics ldapsearch command, printing out result on console.
+- Look a this exemple : https://github.com/mqu/openldap/blob/master/_examples/test-openldap.go).
+- a more complexe example making  [LDAP search]https://github.com/mqu/openldap/blob/master/_examples/ldapsearch.go) that mimics ldapsearch command, printing out result on console.
 
 Todo :
 ----
