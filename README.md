@@ -30,6 +30,7 @@ Todo :
  - thread-safe test
  - complete LDAP:GetOption() and LDAP:SetOption() method : now, they work only for integer values.
  - avoid using deprecated function (see LDAP_DEPRECATED flag and "// DEPRECATED" comments in *.go sources)
+ - write some tests,
  - ...
 
 Doc:
