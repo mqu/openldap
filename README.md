@@ -34,11 +34,12 @@ Doc:
 Todo :
 ----
  - support _binary values_ ! actual search for "all attributes" will segfault (panic: runtime error: invalid memory address)
-   on binary attributes.
- - thread-safe test
- - complete LDAP:GetOption() and LDAP:SetOption() method : now, they work only for integer values.
- - avoid using deprecated function (see LDAP_DEPRECATED flag and "// DEPRECATED" comments in *.go sources)
+   on binary attributes,
+ - thread-safe test,
+ - complete LDAP:GetOption() and LDAP:SetOption() method : now, they work only for integer values,
+ - avoid using deprecated function (see LDAP_DEPRECATED flag and "// DEPRECATED" comments in *.go sources),
  - write some tests,
+ - verify memory leaks (Valgrind),
  - support LDIF format (in, out),
  - add support for external commands (ldapadd, ldapdelete)
  - create an LDAP CLI (command line interface), like lftp, with commands like shell,
