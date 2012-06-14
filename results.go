@@ -1,13 +1,17 @@
 package openldap
 
-/*
-
+/*#include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <ldap.h>
 
-static LDAPMessage **to_ldap_mesg(void* msg){return (LDAPMessage **) msg;}
-static struct timeval *tv_ptr(void* tv){return (struct timeval *) tv;}
-static inline char* to_charptr(const void* s) { return (char*)s; }
+int _berval_get_len(struct berval **ber, int i){
+	return ber[i]->bv_len;
+}
+
+char* _berval_get_value(struct berval **ber, int i){
+	return ber[i]->bv_val;
+}
 
 */
 // #cgo CFLAGS: -DLDAP_DEPRECATED=1
@@ -18,7 +22,6 @@ import "C"
 import (
 	"errors"
 	"fmt"
-	"syscall"
 	"unsafe"
 )
 
@@ -49,7 +52,7 @@ import (
 */
 
 func (self *LdapMessage) Count() int {
-	// API : int ldap_count_messages(LDAP *ld, LdapMessage *chain )
+	// API : int ldap_count_messages(LDAP *ld, LDAPMessage *chain )
 	// err : (count = -1)
 	count := int(C.ldap_count_messages(self.ldap.conn, self.msg))
 	if count == -1 {
@@ -89,7 +92,7 @@ func (self *LdapMessage) NextMessage() *LdapMessage {
 
 /* an alias to ldap_count_message() ? */
 func (self *LdapEntry) CountEntries() int {
-	// API : int ldap_count_messages(LDAP *ld, LdapMessage *chain )
+	// API : int ldap_count_messages(LDAP *ld, LDAPMessage *chain )
 	// err : (count = -1)
 	return int(C.ldap_count_entries(self.ldap.conn, self.entry))
 }
@@ -173,7 +176,8 @@ func cstrings_array(x **C.char) []string {
   value.
  */
 
-func (self *LdapEntry) GetValues(attr string) []string {
+// OK for pure ASCI entries.
+func (self *LdapEntry) GetValues_ascii(attr string) []string {
 
 	_attr := C.CString(attr)
 	defer C.free(unsafe.Pointer(_attr))
@@ -181,9 +185,33 @@ func (self *LdapEntry) GetValues(attr string) []string {
 	// DEPRECATED
 	// API: char **ldap_get_values(LDAP *ld, LdapMessage *entry, char *attr)
 	values := cstrings_array(C.ldap_get_values(self.ldap.conn, self.entry, _attr))
-	// count := C.ldap_count_values(values)
 
 	return values
+}
+
+// FIXME: need to verify binary values.
+func (self *LdapEntry) GetValues(attr string) []string {
+	var s []string
+
+	_attr := C.CString(attr)
+	defer C.free(unsafe.Pointer(_attr))
+
+	var bv **C.struct_berval
+	
+	//API: struct berval **ldap_get_values_len(LDAP *ld, LDAPMessage *entry, char *attr)
+	bv = C.ldap_get_values_len(self.ldap.conn, self.entry, _attr)
+
+	var i int
+	count := int(C.ldap_count_values_len(bv))
+
+	for i = 0 ; i < count; i++ {
+		s = append(s, C.GoStringN(C._berval_get_value(bv, C.int(i)), C._berval_get_len(bv, C.int(i))))
+	}
+
+	// free allocated array (bv)
+	C.ldap_value_free_len(bv)
+
+	return s
 }
 
 // ------------------------------------------------ RESULTS -----------------------------------------------
@@ -203,20 +231,24 @@ func (self *Ldap) Result() (*LdapMessage, error) {
 	var msgid int = 1
 	var all int = 1
 
-	timeout := syscall.Timeval{30, 0} // timeout for 30 seconds by default
-	tv := C.tv_ptr(unsafe.Pointer(&timeout))
+	var tv C.struct_timeval
+	tv.tv_sec = 30
 
-	var _result *LdapMessage
-	result := C.to_ldap_mesg(unsafe.Pointer(_result))
+	var msg *C.LDAPMessage
 
-	// API: int ldap_result( LDAP *ld, int msgid, int all, struct timeval *timeout, LdapMessage **result );
-	rv := C.ldap_result(self.conn, C.int(msgid), C.int(all), tv, result)
+	// API: int ldap_result( LDAP *ld, int msgid, int all, struct timeval *timeout, LDAPMessage **result );
+	rv := C.ldap_result(self.conn, C.int(msgid), C.int(all), &tv, &msg)
 
 	if rv != LDAP_OPT_SUCCESS {
 		return nil, errors.New(fmt.Sprintf("LDAP::Result() error :  %d (%s)", rv, ErrorToString(int(rv))))
 	}
 
-	return _result, nil
+	_msg := new(LdapMessage)
+	_msg.ldap = self
+	_msg.errno = int(rv)
+	_msg.msg = msg
+
+	return _msg, nil
 }
 
 // MsgFree() is used to free LDAP::Result() allocated data
@@ -251,8 +283,9 @@ func (self *LdapMessage) MsgFree() int{
 
 */
 
+// GetDn() return the DN (Distinguish Name) for self LdapEntry
 func (self *LdapEntry) GetDn() string {
-	// API: char *ldap_get_dn( LDAP *ld, LdapMessage *entry )
+	// API: char *ldap_get_dn( LDAP *ld, LDAPMessage *entry )
 	rv := C.ldap_get_dn(self.ldap.conn, self.entry)
 	defer C.free(unsafe.Pointer(rv))
 
