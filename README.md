@@ -17,7 +17,7 @@ Installation is easy and very quick, as you can see :
 	go get github.com/mqu/openldap
 
 	# verify you've got it :
-	go list | grep openldap
+	(cd $GOPATH ; go list ./...) | grep openldap
 
 Usage
 ----
@@ -33,8 +33,7 @@ Doc:
 
 Todo :
 ----
- - support _binary values_ ! actual search for "all attributes" will segfault (panic: runtime error: invalid memory address)
-   on binary attributes,
+
  - thread-safe test,
  - complete LDAP:GetOption() and LDAP:SetOption() method : now, they work only for integer values,
  - avoid using deprecated function (see LDAP_DEPRECATED flag and "// DEPRECATED" comments in *.go sources),
