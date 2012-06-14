@@ -32,6 +32,12 @@ int _ldap_rename (LDAP *ld, char *dn, char *newrdn, char *newSuperior, int delet
 	return ldap_rename_s(ld, dn, newrdn, newSuperior, deleteoldrdn, NULL, NULL);
 }
 
+void _ldap_mods_free (LDAPModStr **mods, int freemods){
+	//API: void ldap_mods_free(LDAPMod **mods, int freemods);
+	return ldap_mods_free((LDAPMod **)mods, freemods);
+}
+
+
 */
 // #cgo CFLAGS: -DLDAP_DEPRECATED=1
 // #cgo linux CFLAGS: -DLINUX=1
@@ -88,7 +94,7 @@ func (self *Ldap) doModify(dn string, attrs map[string][]string, changeType int,
 	}
 
 	// FIXME: need to call ldap_mods_free(&mods) some where.
-
+	// C._ldap_mods_free(&mods[0], 1) // not OK.
 	return rv
 }
 
