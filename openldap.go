@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"unsafe"
 	"strings"
+	"strconv"
 )
 
 /* Intialize() open an LDAP connexion ; supported url formats :
@@ -124,6 +125,15 @@ func (self *Ldap) Unbind() error {
 	return self.Close()
 }
 
+/* Search() is used to search LDAP server
+  - base is where search is starting
+  - scope allows local or deep search. Supported values :
+     - LDAP_SCOPE_BASE
+	   - LDAP_SCOPE_ONELEVEL
+     - LDAP_SCOPE_SUBTREE
+  - filter is an LDAP search expression,
+  - attributes is an array of string telling with LDAP attribute to get from this request
+*/
 func (self *Ldap) Search(base string, scope int, filter string, attributes []string) (*LdapMessage, error) {
 
 	var attrsonly int = 0 // false: returns all, true, returns only attributes without values
@@ -161,38 +171,109 @@ func (self *Ldap) Search(base string, scope int, filter string, attributes []str
 
 // ------------------------------------- Ldap* method (object oriented) -------------------------------------------------------------------
 
+// Append() adds an LdapAttribute to self LdapEntry
 func (self *LdapEntry) Append(a LdapAttribute){
 	self.values = append(self.values, a)
 }
 
+// String() is used for fmt.Println(self)
+//
 func (self *LdapAttribute) String() string{
 	return self.ToText()
 }
 
+// ToText() returns a text string representation of LdapAttribute
+// avoiding displaying binary data.
+//
 func (self *LdapAttribute) ToText() string{
-	return fmt.Sprintf("%s: [%s]", self.name, strings.Join(self.values, ", "))
+	
+	var list []string
+	
+	for _, a := range self.Values() {
+		if (!_isPrint(a)) {
+			list = append(list, fmt.Sprintf("binary-data[%d]", len(a)))
+		} else {
+			list = append(list, a)
+		}
+	}
+	
+	return fmt.Sprintf("%s: [%s]", self.name, strings.Join(list, ", "))
 }
 
+// Name() return attribute name
 func (self *LdapAttribute) Name() string{
 	return self.name
 }
 
+// Values() returns array values for self LdapAttribute 
+//
 func (self *LdapAttribute) Values() []string{
 	return self.values
 }
 
+// _isPrint() returns true if str is printable
+//
+// @private method
+func _isPrint(str string) bool{
+	for _, c := range str{
+		
+		if !strconv.IsPrint(rune(c)) {
+			return false
+		}
+	}
+	
+	return true
+}
+
+// IsPrint() returns true is self LdapAttribute is printable.
+func (self *LdapAttribute) IsPrint() bool{
+	for _, a := range self.Values() {
+		if (!_isPrint(a)) {
+			return false
+		}
+	}
+	return true
+}
+
+// Dn() returns DN (Distinguish Name) for self LdapEntry
 func (self *LdapEntry) Dn() string{
 	return self.dn
 }
 
+// Attributes() returns an array of LdapAttribute
 func (self *LdapEntry) Attributes() []LdapAttribute{
 	return self.values
 }
 
-func (self *LdapEntry) String() string{
+// Print() allow printing self LdapEntry with fmt.Println()
+func (self *LdapEntry) String() string {
 	return self.ToText()
 }
 
+// GetValuesByName() get a list of values for self LdapEntry, using "name" attribute
+func (self *LdapEntry) GetValuesByName(attrib string) []string{
+	
+	for _, a := range self.values{
+		if a.Name() == attrib {
+			return a.values
+		}
+	}
+	
+	return []string{}
+}
+// GetOneValueByName() ; a quick way to get a single attribute value
+func (self *LdapEntry) GetOneValueByName(attrib string) string, err{
+	
+	for _, a := range self.values{
+		if a.Name() == attrib {
+			return a.values[0], nil
+		}
+	}
+	
+	return "", errors.New(fmt.Sprintf("LdapEntry::GetOneValueByName() error : attribute %s not found", attrib))
+}
+
+// ToText() return a string representating self LdapEntry
 func (self *LdapEntry) ToText() string{
 
 	txt := fmt.Sprintf("dn: %s\n", self.dn)
@@ -204,10 +285,12 @@ func (self *LdapEntry) ToText() string{
 	return txt
 }
 
+// Append() add e to LdapSearchResult array
 func (self *LdapSearchResult) Append(e LdapEntry){
 	self.entries = append(self.entries, e)
 }
 
+// ToText() : a quick way to print an LdapSearchResult
 func (self *LdapSearchResult) ToText() string{
 
 	txt := fmt.Sprintf("# query : %s\n", self.filter)
@@ -223,34 +306,44 @@ func (self *LdapSearchResult) ToText() string{
 	return txt
 }
 
+// String() : used for fmt.Println(self)
 func (self *LdapSearchResult) String() string{
 	return self.ToText()
 }
 
+// Entries() : returns an array of LdapEntry for self
 func (self *LdapSearchResult) Entries() []LdapEntry{
 	return self.entries
 }
 
+// Count() : returns number of results for self search.
 func (self *LdapSearchResult) Count() int{
 	return len(self.entries)
 }
 
+// Filter() : returns filter for self search
 func (self *LdapSearchResult) Filter() string{
 	return self.filter
 }
 
+// Filter() : returns base DN for self search
 func (self *LdapSearchResult) Base() string{
 	return self.base
 }
 
+// Filter() : returns scope for self search
 func (self *LdapSearchResult) Scope() int{
 	return self.scope
 }
 
+// Filter() : returns an array of attributes used for this actual search
 func (self *LdapSearchResult) Attributes() []string{
 	return self.attributes
 }
 
+// SearchAll() : a quick way to make search. This method returns an LdapSearchResult with all necessary methods to
+// access data. Result is a collection (tree) of []LdapEntry / []LdapAttribute.
+//
 func (self *Ldap) SearchAll(base string, scope int, filter string, attributes []string) (*LdapSearchResult, error) {
 
 	sr := new(LdapSearchResult)
