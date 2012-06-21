@@ -171,6 +171,14 @@ func (self *Ldap) Search(base string, scope int, filter string, attributes []str
 
 // ------------------------------------- Ldap* method (object oriented) -------------------------------------------------------------------
 
+// Create a new LdapAttribute entry with name and values.
+func LdapAttributeNew(name string, values []string)(*LdapAttribute){
+	a := new(LdapAttribute)
+	a.values = values
+	a.name = name
+	return a
+}
+
 // Append() adds an LdapAttribute to self LdapEntry
 func (self *LdapEntry) Append(a LdapAttribute){
 	self.values = append(self.values, a)
@@ -196,7 +204,9 @@ func (self *LdapAttribute) ToText() string{
 			list = append(list, a)
 		}
 	}
-	
+	if len(list) > 1 {
+		return fmt.Sprintf("%s: (%d)[%s]", self.name, len(list), strings.Join(list, ", "))
+	}
 	return fmt.Sprintf("%s: [%s]", self.name, strings.Join(list, ", "))
 }
 
@@ -262,7 +272,7 @@ func (self *LdapEntry) GetValuesByName(attrib string) []string{
 	return []string{}
 }
 // GetOneValueByName() ; a quick way to get a single attribute value
-func (self *LdapEntry) GetOneValueByName(attrib string) string, err{
+func (self *LdapEntry) GetOneValueByName(attrib string) (string, error){
 	
 	for _, a := range self.values{
 		if a.Name() == attrib {
@@ -375,10 +385,7 @@ func (self *Ldap) SearchAll(base string, scope int, filter string, attributes []
 		attr, _ := e.FirstAttribute()
 		for attr != "" {
 
-			_attr := new(LdapAttribute)
-			_attr.values = e.GetValues(attr)
-			_attr.name = attr
-
+			_attr := LdapAttributeNew(attr, e.GetValues(attr))
 			_e.Append(*_attr)
 
 			attr, _ = e.NextAttribute()
