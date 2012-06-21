@@ -168,27 +168,6 @@ func cstrings_array(x **C.char) []string {
 	return s
 }
 
-/*
- FIXME: does not work for binary attributes
- FIXME:
-  If  the  attribute values are binary in nature, and thus not suitable to be returned as an array of char *'s, the ldap_get_values_len() routine can be used instead.  It
-  takes the same parameters as ldap_get_values(), but returns a NULL-terminated array of pointers to berval structures, each containing the length of and a pointer  to  a
-  value.
- */
-
-// OK for pure ASCI entries.
-func (self *LdapEntry) GetValues_ascii(attr string) []string {
-
-	_attr := C.CString(attr)
-	defer C.free(unsafe.Pointer(_attr))
-
-	// DEPRECATED
-	// API: char **ldap_get_values(LDAP *ld, LdapMessage *entry, char *attr)
-	values := cstrings_array(C.ldap_get_values(self.ldap.conn, self.entry, _attr))
-
-	return values
-}
-
 // FIXME: need to verify binary values.
 func (self *LdapEntry) GetValues(attr string) []string {
 	var s []string
