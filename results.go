@@ -168,7 +168,8 @@ func cstrings_array(x **C.char) []string {
 	return s
 }
 
-// FIXME: need to verify binary values.
+// GetValues() return an array of string containing values for LDAP attribute "attr".
+// Binary data are supported.
 func (self *LdapEntry) GetValues(attr string) []string {
 	var s []string
 
