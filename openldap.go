@@ -35,6 +35,7 @@ package openldap
 
 /*
 
+#define LDAP_DEPRECATED 1
 #include <stdlib.h>
 #include <ldap.h>
 
