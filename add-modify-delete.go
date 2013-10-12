@@ -29,6 +29,7 @@ package openldap
 
 /* #include <stdlib.h>
 #include <stdio.h>
+#define LDAP_DEPRECATED 1
 #include <ldap.h>
 
 // goc can not use union on structs ; so create a new type with same attributes and size
