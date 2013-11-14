@@ -40,7 +40,9 @@ package openldap
 #include <ldap.h>
 
 static inline char* to_charptr(const void* s) { return (char*)s; }
-
+static inline LDAPControl** to_ldapctrlptr(const void* s) {
+	return (LDAPControl**) s;
+}
 */
 // #cgo CFLAGS: -DLDAP_DEPRECATED=1
 // #cgo linux CFLAGS: -DLINUX=1
@@ -79,6 +81,31 @@ func Initialize(url string) (*Ldap, error) {
 	}
 
 	return &Ldap{ldap}, nil
+}
+
+/*
+ * StartTLS() is used for regular LDAP (not
+ * LDAPS) connections to establish encryption
+ * after the session is running.
+ *
+ * return value :
+ *  - nil on success,
+ *  - error with error description on error.
+ */
+func (self *Ldap) StartTLS() error {
+	var rv int
+
+	// API: int ldap_start_tls_s(LDAP *ld, LDAPControl **serverctrls, LDAPControl **clientctrls);
+	rv = int(C.ldap_start_tls_s(self.conn,
+		C.to_ldapctrlptr(unsafe.Pointer(nil)),
+		C.to_ldapctrlptr(unsafe.Pointer(nil))))
+
+	if rv == LDAP_OPT_SUCCESS {
+		return nil
+	}
+
+	return errors.New(fmt.Sprintf("LDAP::StartTLS() error (%d) : %s", rv,
+		ErrorToString(rv)))
 }
 
 /* 
