@@ -1,7 +1,7 @@
 OpenLDAP
 ====
 
-this is Openldap binding in GO language.
+this is Openldap binding in GO language. I don't work any more with golang, so, please fork this project.
 
 
 Installation :
